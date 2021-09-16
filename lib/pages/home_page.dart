@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -10,13 +9,31 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<String> ultimo_minuto = [];
   @override
   Widget build(BuildContext context) {
-    getUltimoMunito();
     return Scaffold(
+      // drawer: showDrawer(context),
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text('red CUBA'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search_rounded),
+            onPressed: () => Navigator.pushNamed(context, 'search'),
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.info_outlined,
+              color: Colors.blueAccent,
+            ),
+            onPressed: () => Navigator.pushNamed(context, 'about'),
+          )
+        ],
+        backgroundColor: Colors.blueGrey,
+        title: Image.asset(
+          'assets/images/logo.png',
+          width: MediaQuery.of(context).size.width * 0.35,
+        ),
       ),
       body: Container(
           margin:
@@ -28,10 +45,38 @@ class _HomePageState extends State<HomePage> {
                   left: MediaQuery.of(context).size.height * 0.002),
             ),
             _pageViewDestacadas(),
-            _logoImage(context),
-            _textShow(),
-            _showNewList()
+            //_logoImage(context),
           ])),
+    );
+  }
+
+  Drawer showDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            child: Container(),
+            decoration: BoxDecoration(
+                image: DecorationImage(
+              image: AssetImage(
+                'assets/images/app_bar_image.png',
+              ),
+            )),
+          ),
+          ListTile(
+            leading: Icon(Icons.search),
+            title: Text('Realizar una búsqueda'),
+            trailing: Icon(Icons.keyboard_arrow_right),
+            onTap: () => Navigator.pushNamed(context, 'busqueda'),
+          ),
+          ListTile(
+            leading: Icon(Icons.info_outlined),
+            title: Text('Acerca de...'),
+            trailing: Icon(Icons.keyboard_arrow_right),
+          )
+        ],
+      ),
     );
   }
 
@@ -39,8 +84,8 @@ class _HomePageState extends State<HomePage> {
     return Align(
       alignment: Alignment.centerLeft,
       child: Text(
-        'Últimas Noticias!!',
-        style: TextStyle(color: Colors.red, fontSize: 20),
+        'Último minuto',
+        style: TextStyle(color: Color.fromRGBO(94, 145, 254, 1), fontSize: 20),
         textAlign: TextAlign.start,
       ),
     );
@@ -59,20 +104,49 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget testwidget(int p) {
+  Widget testwidget() {
     return FutureBuilder(
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return null; //TODO
+          return ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: 2,
+            itemBuilder: (context, index) {
+              return Container(
+                decoration: BoxDecoration(border: Border(left: BorderSide())),
+                width: 350,
+                child: ListTile(
+                  onTap: () {
+                    print('NAVEGAR');
+                  },
+                  title: Text(
+                    '${ultimo_minuto[index]}',
+                    // overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 15.0),
+                  ),
+                  subtitle: Text(
+                    '${ultimo_minuto[index + 2]}',
+                    //overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 15.0),
+                  ),
+                  trailing: Icon(
+                    Icons.link,
+                    color: Colors.blue,
+                    size: 25.0,
+                  ),
+                ),
+              );
+            },
+          );
         } else {
           return Center(
             child: CircularProgressIndicator(
-              color: Colors.red,
+              color: Colors.blueGrey,
             ),
           );
         }
       },
-      future: test(p),
+      future: getUltimoMunito(),
     );
   }
 
@@ -93,8 +167,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<String>> getUltimoMunito() async {
-    List<String> ultimo_minuto = [];
-
     final response =
         await http.Client().get(Uri.parse('https://www.redcuba.cu/'));
     if (response.statusCode == 200) {
@@ -112,108 +184,31 @@ class _HomePageState extends State<HomePage> {
           .text
           .trim();
       ultimo_minuto.add(new1);
-      print('$new1   $new2');
+      ultimo_minuto.add(new2);
+
+      String sumary_new1 = documento
+          .getElementsByClassName('ultimo-minuto padding-rl-0')[0]
+          .children[0]
+          .children[2]
+          .text
+          .trim();
+
+      String sumary_new2 = documento
+          .getElementsByClassName('ultimo-minuto padding-rl-0')[0]
+          .children[1]
+          .children[2]
+          .text
+          .trim();
+      ultimo_minuto.add(sumary_new1);
+      ultimo_minuto.add(sumary_new2);
     }
 
     return ultimo_minuto;
   }
 
-  Widget _showClimaData() {
-    return Container(
-      child: Text('CLIMA AQUI'),
-    );
-  }
-
   Widget _pageViewDestacadas() {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.08,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          return Center(child: _cardLastestNews());
-        },
-      ),
-    );
-  }
-
-  Widget _cardLastestNews() {
-    return Container(
-      decoration: BoxDecoration(border: Border(left: BorderSide())),
-      width: 300,
-      child: ListTile(
-        onTap: () {
-          print('NAVEGAR');
-        },
-        title: Text(
-          'Title asdjh kasdkj hasdkj hasdkj asdasd ahsd kasdkj hasdkj hasdkj asdasd ahsd',
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: Colors.blue, fontSize: 15.0),
-        ),
-        trailing: Icon(
-          Icons.launch_sharp,
-          color: Colors.blue,
-          size: 25.0,
-        ),
-      ),
-    );
-  }
-
-  Widget _textShow() {
-    return Card(
-      margin: EdgeInsets.only(
-          top: MediaQuery.of(context).size.height * 0.005, left: 2),
-      elevation: 10,
-      child: Container(
-        child: Row(
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.5,
-              child: TextField(
-                decoration: const InputDecoration(
-                    hintText: 'Buscar artículos...',
-                    contentPadding: EdgeInsets.all(10)),
-              ),
-            ),
-            IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  Icons.keyboard_arrow_down,
-                  size: MediaQuery.of(context).size.width * 0.05,
-                )),
-            Container(
-              width: MediaQuery.of(context).size.height * 0.15,
-              child: TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    'Buscar',
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        Color.fromRGBO(0, 212, 164, 1)),
-                  )),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _showNewList() {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.58,
-      child: ListView.builder(
-        itemCount: 20,
-        itemBuilder: (context, index) {
-          return ListTile(
-            trailing: Icon(Icons.add),
-            title: Text('Texto tomado de'),
-          );
-        },
-      ),
-    );
+        height: MediaQuery.of(context).size.height * 0.4,
+        child: Center(child: testwidget()));
   }
 }
