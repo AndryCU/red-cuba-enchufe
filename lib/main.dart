@@ -6,6 +6,10 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'red CUBA', home: HomePage());
+    return MaterialApp(
+      title: 'red CUBA',
+      home: HomePage(),
+      debugShowCheckedModeBanner: false,
+    );
   }
 }
