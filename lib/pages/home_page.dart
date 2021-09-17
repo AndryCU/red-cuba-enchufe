@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
@@ -24,7 +23,6 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(
               Icons.info_outlined,
-              color: Colors.blueAccent,
             ),
             onPressed: () => Navigator.pushNamed(context, 'about'),
           )
@@ -35,18 +33,23 @@ class _HomePageState extends State<HomePage> {
           width: MediaQuery.of(context).size.width * 0.35,
         ),
       ),
-      body: Container(
-          margin:
-              EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.005),
-          child: Column(children: [
-            Container(
-              child: textUltimasNoticias(),
-              padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.height * 0.002),
-            ),
-            _pageViewDestacadas(),
-            //_logoImage(context),
-          ])),
+      body: SingleChildScrollView(
+        child: Container(
+            margin: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height * 0.005),
+            child: Column(children: [
+              Container(
+                child: textUltimasNoticias(),
+                padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.height * 0.002),
+              ),
+              _pageViewDestacadas(),
+              Text(
+                'Sitios webs recomendados',
+              ),
+              _table()
+            ])),
+      ),
     );
   }
 
@@ -91,19 +94,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Container _logoImage(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-          left: 10, right: 10, top: MediaQuery.of(context).size.height * 0.005),
-      width: double.infinity,
-      child: Image.asset(
-        'assets/images/logo.png',
-        width: double.infinity,
-        height: MediaQuery.of(context).size.height * 0.05,
-      ),
-    );
-  }
-
   Widget testwidget() {
     return FutureBuilder(
       builder: (context, snapshot) {
@@ -114,7 +104,7 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (context, index) {
               return Container(
                 decoration: BoxDecoration(border: Border(left: BorderSide())),
-                width: 350,
+                width: 400,
                 child: ListTile(
                   onTap: () {
                     print('NAVEGAR');
@@ -122,11 +112,6 @@ class _HomePageState extends State<HomePage> {
                   title: Text(
                     '${ultimo_minuto[index]}',
                     // overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 15.0),
-                  ),
-                  subtitle: Text(
-                    '${ultimo_minuto[index + 2]}',
-                    //overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 15.0),
                   ),
                   trailing: Icon(
@@ -148,22 +133,6 @@ class _HomePageState extends State<HomePage> {
       },
       future: getUltimoMunito(),
     );
-  }
-
-  Future<String> test(int pos) async {
-    String texto1 = '';
-    final response = await http.Client().get(Uri.parse(
-        'https://www.redcuba.cu/web/webResults/inteferon?_query=inteferon'));
-    if (response.statusCode == 200) {
-      var documento = parser.parse(response.body);
-      texto1 = documento
-          .getElementsByClassName('results-page')[0]
-          .children[pos]
-          .children[0]
-          .text
-          .toString();
-    }
-    return texto1;
   }
 
   Future<List<String>> getUltimoMunito() async {
@@ -208,7 +177,67 @@ class _HomePageState extends State<HomePage> {
 
   Widget _pageViewDestacadas() {
     return Container(
-        height: MediaQuery.of(context).size.height * 0.4,
+        height: MediaQuery.of(context).size.height * 0.12,
         child: Center(child: testwidget()));
+  }
+
+  Widget _table() {
+    return Table(
+      children: [
+        TableRow(children: [
+          _imageTable(
+              'assets/images/link_cubadebate.png', 'Cubadebate', 'cubadebate'),
+          _imageTable('assets/images/link_ecured.png', 'Ecured', ''),
+        ]),
+        TableRow(children: [
+          _imageTable('assets/images/reflej.png', 'Blogs Reflejos', 'picta'),
+          _imageTable('assets/images/ofertas.png', 'Ofertas.cu', ''),
+        ]),
+        TableRow(children: [
+          _imageTable('assets/images/toDus.png', 'toDus app', 'jajaja'),
+          _imageTable('assets/images/apklis.png', 'Apklis', ''),
+        ]),
+        TableRow(children: [
+          _imageTable('assets/images/link_infomed.png', 'Salud', ''),
+          _imageTable('assets/images/link_cubaeduca.png', '', ''),
+        ]),
+        TableRow(children: [
+          _imageTable('assets/images/papeleta.png', '', ''),
+          _imageTable('assets/images/anda.png', '', ''),
+        ]),
+        TableRow(children: [
+          _imageTable('assets/images/consola.jpg', '', ''),
+          _imageTable('assets/images/picta.jpg', '', ''),
+        ])
+      ],
+    );
+  }
+
+  Widget _imageTable(String ruta_foto, String web_url, String url) {
+    return InkWell(
+      onTap: () {
+        print('voy a $url');
+      },
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.15,
+        margin: EdgeInsets.only(left: 10, top: 5, right: 5),
+        decoration: BoxDecoration(
+            color: Color.fromRGBO(0, 212, 164, 0.2),
+            borderRadius: BorderRadius.circular(15.0)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            ClipRRect(
+              child: Image.asset(
+                ruta_foto,
+                height: 50,
+              ),
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            Text(web_url)
+          ],
+        ),
+      ),
+    );
   }
 }

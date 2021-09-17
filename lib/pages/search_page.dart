@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:html/parser.dart' as parser;
+import 'package:http/http.dart' as http;
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -11,6 +13,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: Colors.blueGrey,
           title: Image.asset(
@@ -83,5 +86,21 @@ class _SearchPageState extends State<SearchPage> {
         },
       ),
     );
+  }
+
+  Future<String> test(int pos) async {
+    String texto1 = '';
+    final response = await http.Client().get(Uri.parse(
+        'https://www.redcuba.cu/web/webResults/inteferon?_query=inteferon'));
+    if (response.statusCode == 200) {
+      var documento = parser.parse(response.body);
+      texto1 = documento
+          .getElementsByClassName('results-page')[0]
+          .children[pos]
+          .children[0]
+          .text
+          .toString();
+    }
+    return texto1;
   }
 }
