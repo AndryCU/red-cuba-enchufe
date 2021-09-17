@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
+import '';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -10,6 +11,10 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  String dropinitial = 'todo';
+  bool visibility = false;
+  final _text = TextEditingController();
+  bool _validate = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +30,7 @@ class _SearchPageState extends State<SearchPage> {
           margin:
               EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.005),
           child: Column(
-            children: [_textShow(), _showSearchResults()],
+            children: [_textShow(), _showTodoResults()],
           ),
         ));
   }
@@ -39,23 +44,25 @@ class _SearchPageState extends State<SearchPage> {
         child: Row(
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.5,
+              width: MediaQuery.of(context).size.width * 0.45,
               child: TextField(
-                decoration: const InputDecoration(
+                controller: _text,
+                decoration: InputDecoration(
+                    errorText: _validate ? 'Vacío' : null,
                     hintText: 'Buscar artículos...',
                     contentPadding: EdgeInsets.all(10)),
               ),
             ),
-            IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  Icons.keyboard_arrow_down,
-                  size: MediaQuery.of(context).size.width * 0.05,
-                )),
+            _dropDown(),
             Container(
-              width: MediaQuery.of(context).size.height * 0.15,
+              padding: EdgeInsets.only(left: 5.0),
+              width: MediaQuery.of(context).size.width * 0.2,
               child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _text.text.isEmpty ? _validate = true : _validate = false;
+                    visibility = true;
+                    setState(() {});
+                  },
                   child: Text(
                     'Buscar',
                     style: TextStyle(
@@ -69,21 +76,6 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _showSearchResults() {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.58,
-      child: ListView.builder(
-        itemCount: 20,
-        itemBuilder: (context, index) {
-          return ListTile(
-            trailing: Icon(Icons.add),
-            title: Text('Texto tomado de'),
-          );
-        },
       ),
     );
   }
@@ -102,5 +94,47 @@ class _SearchPageState extends State<SearchPage> {
           .toString();
     }
     return texto1;
+  }
+
+  Widget _dropDown() {
+    return Container(
+      padding: EdgeInsets.only(left: 5, right: 5),
+      width: MediaQuery.of(context).size.width * 0.25,
+      child: DropdownButton(
+        value: dropinitial,
+        isExpanded: true,
+        items: [
+          DropdownMenuItem(value: 'todo', child: Text('Todo')),
+          DropdownMenuItem(value: 'imagenes', child: Text('Imágenes')),
+          DropdownMenuItem(value: 'documentos', child: Text('Documentos')),
+          DropdownMenuItem(value: 'noticias', child: Text('Noticias')),
+          DropdownMenuItem(value: 'academia', child: Text('Academia')),
+        ],
+        onChanged: (value) {
+          setState(() {
+            dropinitial = value as String;
+          });
+          print(value);
+        },
+      ),
+    );
+  }
+
+  Widget _showTodoResults() {
+    return Visibility(
+      visible: visibility,
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.58,
+        child: ListView.builder(
+          itemCount: 20,
+          itemBuilder: (context, index) {
+            return ListTile(
+              trailing: Icon(Icons.link),
+              title: Text(''),
+            );
+          },
+        ),
+      ),
+    );
   }
 }

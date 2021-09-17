@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -44,6 +45,7 @@ class _HomePageState extends State<HomePage> {
                     left: MediaQuery.of(context).size.height * 0.002),
               ),
               _pageViewDestacadas(),
+              _fracedelDia(),
               Text(
                 'Sitios webs recomendados',
               ),
@@ -83,13 +85,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Align textUltimasNoticias() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        'Último minuto',
-        style: TextStyle(color: Color.fromRGBO(94, 145, 254, 1), fontSize: 20),
-        textAlign: TextAlign.start,
+  Widget textUltimasNoticias() {
+    return Container(
+      margin: EdgeInsets.only(left: 10.0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          'Último minuto',
+          style:
+              TextStyle(color: Color.fromRGBO(94, 145, 254, 1), fontSize: 20),
+          textAlign: TextAlign.start,
+        ),
       ),
     );
   }
@@ -107,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                 width: 400,
                 child: ListTile(
                   onTap: () {
-                    print('NAVEGAR');
+                    _launchInBrowser(ultimo_minuto[index + 2]);
                   },
                   title: Text(
                     '${ultimo_minuto[index]}',
@@ -155,21 +161,21 @@ class _HomePageState extends State<HomePage> {
       ultimo_minuto.add(new1);
       ultimo_minuto.add(new2);
 
-      String sumary_new1 = documento
+      String href1 = documento
           .getElementsByClassName('ultimo-minuto padding-rl-0')[0]
           .children[0]
-          .children[2]
-          .text
-          .trim();
-
-      String sumary_new2 = documento
+          .children[0]
+          .attributes['href']
+          .toString();
+      String href2 = documento
           .getElementsByClassName('ultimo-minuto padding-rl-0')[0]
           .children[1]
-          .children[2]
-          .text
-          .trim();
-      ultimo_minuto.add(sumary_new1);
-      ultimo_minuto.add(sumary_new2);
+          .children[0]
+          .attributes['href']
+          .toString();
+
+      ultimo_minuto.add(href1);
+      ultimo_minuto.add(href2);
     }
 
     return ultimo_minuto;
@@ -185,29 +191,39 @@ class _HomePageState extends State<HomePage> {
     return Table(
       children: [
         TableRow(children: [
+          _imageTable('assets/images/link_cubadebate.png', 'Cubadebate',
+              'http://www.cubadebate.cu/'),
+          _imageTable('assets/images/link_ecured.png', 'Ecured',
+              'https://www.ecured.cu/EcuRed:Enciclopedia_cubana'),
+        ]),
+        TableRow(children: [
+          _imageTable('assets/images/reflej.png', 'Blogs Reflejos',
+              'https://cubava.cu/'),
           _imageTable(
-              'assets/images/link_cubadebate.png', 'Cubadebate', 'cubadebate'),
-          _imageTable('assets/images/link_ecured.png', 'Ecured', ''),
+              'assets/images/ofertas.png', 'Ofertas.cu', 'http://ofertas.cu/'),
         ]),
         TableRow(children: [
-          _imageTable('assets/images/reflej.png', 'Blogs Reflejos', 'picta'),
-          _imageTable('assets/images/ofertas.png', 'Ofertas.cu', ''),
+          _imageTable(
+              'assets/images/toDus.png', 'toDus app', 'https://todus.cu/'),
+          _imageTable(
+              'assets/images/apklis.png', 'Apklis', 'https://www.apklis.cu/'),
         ]),
         TableRow(children: [
-          _imageTable('assets/images/toDus.png', 'toDus app', 'jajaja'),
-          _imageTable('assets/images/apklis.png', 'Apklis', ''),
+          _imageTable('assets/images/link_infomed.png', 'Red Salud Cubana',
+              'https://www.sld.cu/'),
+          _imageTable('assets/images/link_cubaeduca.png',
+              ' Comunidad Educativa', 'https://www.cubaeduca.cu/'),
         ]),
         TableRow(children: [
-          _imageTable('assets/images/link_infomed.png', 'Salud', ''),
-          _imageTable('assets/images/link_cubaeduca.png', '', ''),
+          _imageTable('assets/images/papeleta.png', 'Cartelera Cultural',
+              'http://lapapeleta.cu/'),
+          _imageTable('assets/images/logoacn.png', 'ACN', 'http://www.acn.cu/'),
         ]),
         TableRow(children: [
-          _imageTable('assets/images/papeleta.png', '', ''),
-          _imageTable('assets/images/anda.png', '', ''),
-        ]),
-        TableRow(children: [
-          _imageTable('assets/images/consola.jpg', '', ''),
-          _imageTable('assets/images/picta.jpg', '', ''),
+          _imageTable('assets/images/consola.jpg', 'SEO WebMas',
+              'https://seowebmas.redcuba.cu/'),
+          _imageTable(
+              'assets/images/picta.jpg', 'Picta', 'https://www.picta.cu/home'),
         ])
       ],
     );
@@ -216,7 +232,7 @@ class _HomePageState extends State<HomePage> {
   Widget _imageTable(String ruta_foto, String web_url, String url) {
     return InkWell(
       onTap: () {
-        print('voy a $url');
+        _launchInBrowser(url);
       },
       child: Container(
         height: MediaQuery.of(context).size.height * 0.15,
@@ -239,5 +255,35 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  Widget _fracedelDia() {
+    return Container(
+      padding: EdgeInsets.only(left: 10.0),
+      child: Row(
+        children: [
+          Text(
+            'Frase del  día',
+            style: TextStyle(fontSize: 10),
+          ),
+          SizedBox(
+            width: 20,
+          ),
+          Text('Ser culto es bla bla')
+        ],
+      ),
+    );
+  }
+
+  Future<void> _launchInBrowser(String url) async {
+    if (await canLaunch(url)) {
+      await launch(
+        url,
+        forceSafariVC: false,
+        forceWebView: false,
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }
