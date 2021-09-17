@@ -1,7 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:html/parser.dart' as parser;
-import 'package:http/http.dart' as http;
-import '';
+import 'package:red_cuba/models/noticias_model.dart';
+import 'package:red_cuba/utiles/news.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -11,6 +11,7 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  List<String> todo_results = [];
   String dropinitial = 'todo';
   bool visibility = false;
   final _text = TextEditingController();
@@ -46,6 +47,7 @@ class _SearchPageState extends State<SearchPage> {
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.45,
               child: TextField(
+                style: TextStyle(),
                 controller: _text,
                 decoration: InputDecoration(
                     errorText: _validate ? 'Vacío' : null,
@@ -66,8 +68,8 @@ class _SearchPageState extends State<SearchPage> {
                   child: Text(
                     'Buscar',
                     style: TextStyle(
-                      color: Colors.white,
-                    ),
+                        color: Colors.white,
+                        fontSize: MediaQuery.of(context).size.width * 0.035),
                   ),
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(
@@ -80,22 +82,6 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Future<String> test(int pos) async {
-    String texto1 = '';
-    final response = await http.Client().get(Uri.parse(
-        'https://www.redcuba.cu/web/webResults/inteferon?_query=inteferon'));
-    if (response.statusCode == 200) {
-      var documento = parser.parse(response.body);
-      texto1 = documento
-          .getElementsByClassName('results-page')[0]
-          .children[pos]
-          .children[0]
-          .text
-          .toString();
-    }
-    return texto1;
-  }
-
   Widget _dropDown() {
     return Container(
       padding: EdgeInsets.only(left: 5, right: 5),
@@ -104,11 +90,41 @@ class _SearchPageState extends State<SearchPage> {
         value: dropinitial,
         isExpanded: true,
         items: [
-          DropdownMenuItem(value: 'todo', child: Text('Todo')),
-          DropdownMenuItem(value: 'imagenes', child: Text('Imágenes')),
-          DropdownMenuItem(value: 'documentos', child: Text('Documentos')),
-          DropdownMenuItem(value: 'noticias', child: Text('Noticias')),
-          DropdownMenuItem(value: 'academia', child: Text('Academia')),
+          DropdownMenuItem(
+              value: 'todo',
+              child: Text(
+                'Todo',
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.035),
+              )),
+          DropdownMenuItem(
+              value: 'imagenes',
+              child: Text(
+                'Imágenes',
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.035),
+              )),
+          DropdownMenuItem(
+              value: 'documentos',
+              child: Text(
+                'Documentos',
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.035),
+              )),
+          DropdownMenuItem(
+              value: 'noticias',
+              child: Text(
+                'Noticias',
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.035),
+              )),
+          DropdownMenuItem(
+              value: 'academia',
+              child: Text(
+                'Academia',
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.035),
+              )),
         ],
         onChanged: (value) {
           setState(() {
@@ -121,20 +137,44 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _showTodoResults() {
-    return Visibility(
-      visible: visibility,
-      child: Container(
-        height: MediaQuery.of(context).size.height * 0.58,
-        child: ListView.builder(
-          itemCount: 20,
-          itemBuilder: (context, index) {
-            return ListTile(
-              trailing: Icon(Icons.link),
-              title: Text(''),
-            );
+    return Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        child: FutureBuilder(
+          future: getTodoResults(_text.text),
+          builder: (context, AsyncSnapshot<List<Noticias>> snapshot) {
+            if (snapshot.hasData) {
+              return ListView.builder(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    onTap: () {
+                      launchInBrowser(snapshot.data![index].url);
+                    },
+                    child: Container(
+                      margin: EdgeInsets.all(5.0),
+                      child: ListTile(
+                        title: Text(
+                          '${snapshot.data![index].title}',
+                          style: TextStyle(
+                              color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text('${snapshot.data![index].subtitle}',
+                            overflow: TextOverflow.clip,
+                            maxLines: 3,
+                            softWrap: true,
+                            textAlign: TextAlign.justify),
+                        trailing: Icon(Icons.chevron_right),
+                      ),
+                    ),
+                  );
+                },
+              );
+            } else {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
           },
-        ),
-      ),
-    );
+        ));
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:html/parser.dart' as parser;
-import 'package:http/http.dart' as http;
+import 'package:red_cuba/utiles/news.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
@@ -9,7 +8,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<String> ultimo_minuto = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,7 +100,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget testwidget() {
     return FutureBuilder(
-      builder: (context, snapshot) {
+      builder: (context, AsyncSnapshot<List<String>> snapshot) {
         if (snapshot.hasData) {
           return ListView.builder(
             scrollDirection: Axis.horizontal,
@@ -113,10 +111,10 @@ class _HomePageState extends State<HomePage> {
                 width: 400,
                 child: ListTile(
                   onTap: () {
-                    _launchInBrowser(ultimo_minuto[index + 2]);
+                    launchInBrowser(snapshot.data![index + 2]);
                   },
                   title: Text(
-                    '${ultimo_minuto[index]}',
+                    '${snapshot.data![index]}',
                     // overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 15.0),
                   ),
@@ -137,48 +135,8 @@ class _HomePageState extends State<HomePage> {
           );
         }
       },
-      future: getUltimoMunito(),
+      future: getUltimoMinuto(),
     );
-  }
-
-  Future<List<String>> getUltimoMunito() async {
-    final response =
-        await http.Client().get(Uri.parse('https://www.redcuba.cu/'));
-    if (response.statusCode == 200) {
-      var documento = parser.parse(response.body);
-      String new1 = documento
-          .getElementsByClassName('ultimo-minuto padding-rl-0')[0]
-          .children[0]
-          .children[0]
-          .text
-          .trim();
-      String new2 = documento
-          .getElementsByClassName('ultimo-minuto padding-rl-0')[0]
-          .children[1]
-          .children[0]
-          .text
-          .trim();
-      ultimo_minuto.add(new1);
-      ultimo_minuto.add(new2);
-
-      String href1 = documento
-          .getElementsByClassName('ultimo-minuto padding-rl-0')[0]
-          .children[0]
-          .children[0]
-          .attributes['href']
-          .toString();
-      String href2 = documento
-          .getElementsByClassName('ultimo-minuto padding-rl-0')[0]
-          .children[1]
-          .children[0]
-          .attributes['href']
-          .toString();
-
-      ultimo_minuto.add(href1);
-      ultimo_minuto.add(href2);
-    }
-
-    return ultimo_minuto;
   }
 
   Widget _pageViewDestacadas() {
@@ -232,7 +190,7 @@ class _HomePageState extends State<HomePage> {
   Widget _imageTable(String ruta_foto, String web_url, String url) {
     return InkWell(
       onTap: () {
-        _launchInBrowser(url);
+        launchInBrowser(url);
       },
       child: Container(
         height: MediaQuery.of(context).size.height * 0.15,
@@ -273,17 +231,5 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
-  }
-
-  Future<void> _launchInBrowser(String url) async {
-    if (await canLaunch(url)) {
-      await launch(
-        url,
-        forceSafariVC: false,
-        forceWebView: false,
-      );
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 }
