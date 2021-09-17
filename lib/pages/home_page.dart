@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:red_cuba/utiles/news.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:red_cuba/utiles/preferences.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -8,47 +8,51 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final prefs = new PreferenciasUsuario();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // drawer: showDrawer(context),
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search_rounded),
-            onPressed: () => Navigator.pushNamed(context, 'search'),
+    return SafeArea(
+      child: Scaffold(
+        // drawer: showDrawer(context),
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          actions: [
+            IconButton(
+                icon: Icon(Icons.search_rounded),
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    'search',
+                  );
+                  prefs.flag = true;
+                }),
+            IconButton(
+              icon: Icon(
+                Icons.info_outlined,
+              ),
+              onPressed: () => Navigator.pushNamed(context, 'about'),
+            )
+          ],
+          backgroundColor: Colors.blueGrey,
+          title: Image.asset(
+            'assets/images/logo.png',
+            width: MediaQuery.of(context).size.width * 0.35,
           ),
-          IconButton(
-            icon: Icon(
-              Icons.info_outlined,
-            ),
-            onPressed: () => Navigator.pushNamed(context, 'about'),
-          )
-        ],
-        backgroundColor: Colors.blueGrey,
-        title: Image.asset(
-          'assets/images/logo.png',
-          width: MediaQuery.of(context).size.width * 0.35,
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-            margin: EdgeInsets.only(
-                top: MediaQuery.of(context).size.height * 0.005),
-            child: Column(children: [
-              Container(
-                child: textUltimasNoticias(),
-                padding: EdgeInsets.only(
-                    left: MediaQuery.of(context).size.height * 0.002),
-              ),
-              _pageViewDestacadas(),
-              _fracedelDia(),
-              Text(
-                'Sitios webs recomendados',
-              ),
-              _table()
-            ])),
+        body: SingleChildScrollView(
+          child: Container(
+              margin: EdgeInsets.only(
+                  top: MediaQuery.of(context).size.height * 0.005),
+              child: Column(children: [
+                Container(
+                  child: textUltimasNoticias(),
+                  padding: EdgeInsets.only(
+                      left: MediaQuery.of(context).size.height * 0.002),
+                ),
+                _pageViewDestacadas(),
+                _table()
+              ])),
+        ),
       ),
     );
   }
@@ -211,24 +215,6 @@ class _HomePageState extends State<HomePage> {
             Text(web_url)
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _fracedelDia() {
-    return Container(
-      padding: EdgeInsets.only(left: 10.0),
-      child: Row(
-        children: [
-          Text(
-            'Frase del  día',
-            style: TextStyle(fontSize: 10),
-          ),
-          SizedBox(
-            width: 20,
-          ),
-          Text('Ser culto es bla bla')
-        ],
       ),
     );
   }

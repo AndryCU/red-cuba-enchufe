@@ -2,38 +2,48 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:red_cuba/models/noticias_model.dart';
 import 'package:red_cuba/utiles/news.dart';
+import 'package:red_cuba/utiles/preferences.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({Key? key}) : super(key: key);
+  const SearchPage({
+    Key? key,
+  }) : super(key: key);
 
   @override
   _SearchPageState createState() => _SearchPageState();
 }
 
 class _SearchPageState extends State<SearchPage> {
+  final prefs = new PreferenciasUsuario();
   List<String> todo_results = [];
   String dropinitial = 'todo';
   bool visibility = false;
   final _text = TextEditingController();
-  bool _validate = false;
+  bool? _validate;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          backgroundColor: Colors.blueGrey,
-          title: Image.asset(
-            'assets/images/logo.png',
-            width: MediaQuery.of(context).size.width * 0.35,
+    _validate = false;
+    return SafeArea(
+      child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          appBar: AppBar(
+            backgroundColor: Colors.blueGrey,
+            title: Container(
+              margin: EdgeInsets.only(top: 10.0, bottom: 10),
+              child: Image.asset(
+                'assets/images/logo.png',
+                width: MediaQuery.of(context).size.width * 0.35,
+              ),
+            ),
           ),
-        ),
-        body: Container(
-          margin:
-              EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.005),
-          child: Column(
-            children: [_textShow(), _showTodoResults()],
-          ),
-        ));
+          body: Container(
+            margin: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height * 0.005),
+            child: Column(
+              children: [_textShow(), _showTodoResults()],
+            ),
+          )),
+    );
   }
 
   Widget _textShow() {
@@ -50,19 +60,19 @@ class _SearchPageState extends State<SearchPage> {
                 style: TextStyle(),
                 controller: _text,
                 decoration: InputDecoration(
-                    errorText: _validate ? 'Vacío' : null,
+                    errorText: _validate! ? 'Vacío' : null,
                     hintText: 'Buscar artículos...',
                     contentPadding: EdgeInsets.all(10)),
               ),
             ),
-            _dropDown(),
+            //_dropDown(),
             Container(
               padding: EdgeInsets.only(left: 5.0),
               width: MediaQuery.of(context).size.width * 0.2,
               child: TextButton(
                   onPressed: () {
-                    _text.text.isEmpty ? _validate = true : _validate = false;
-                    visibility = true;
+                    _text.text.isEmpty ? _validate = false : _validate = true;
+                    print(_validate);
                     setState(() {});
                   },
                   child: Text(
@@ -142,38 +152,46 @@ class _SearchPageState extends State<SearchPage> {
         child: FutureBuilder(
           future: getTodoResults(_text.text),
           builder: (context, AsyncSnapshot<List<Noticias>> snapshot) {
-            if (snapshot.hasData) {
-              return ListView.builder(
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: () {
-                      launchInBrowser(snapshot.data![index].url);
-                    },
-                    child: Container(
-                      margin: EdgeInsets.all(5.0),
-                      child: ListTile(
-                        title: Text(
-                          '${snapshot.data![index].title}',
-                          style: TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text('${snapshot.data![index].subtitle}',
-                            overflow: TextOverflow.clip,
-                            maxLines: 3,
-                            softWrap: true,
-                            textAlign: TextAlign.justify),
-                        trailing: Icon(Icons.chevron_right),
-                      ),
-                    ),
-                  );
-                },
-              );
-            } else {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
+            if (prefs.flag) {
+              prefs.flag = false;
+              return Container();
             }
+
+            if (snapshot.connectionState != ConnectionState.done) {
+              return Center(
+                  child: Container(
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      height: MediaQuery.of(context).size.height * 0.2,
+                      child: CircularProgressIndicator()));
+            }
+            //if (snapshot.hasData) {
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onTap: () {
+                    launchInBrowser(snapshot.data![index].url);
+                  },
+                  child: Container(
+                    margin: EdgeInsets.all(5.0),
+                    child: ListTile(
+                      title: Text(
+                        '${snapshot.data![index].title}',
+                        style: TextStyle(
+                            color: Colors.black, fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text('${snapshot.data![index].subtitle}',
+                          overflow: TextOverflow.clip,
+                          maxLines: 3,
+                          softWrap: true,
+                          textAlign: TextAlign.justify),
+                      trailing: Icon(Icons.chevron_right),
+                    ),
+                  ),
+                );
+              },
+            );
+            //}
           },
         ));
   }
