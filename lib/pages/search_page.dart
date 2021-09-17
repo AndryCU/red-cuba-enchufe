@@ -16,13 +16,10 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final prefs = new PreferenciasUsuario();
   List<String> todo_results = [];
-  String dropinitial = 'todo';
-  bool visibility = false;
   final _text = TextEditingController();
-  bool? _validate;
+
   @override
   Widget build(BuildContext context) {
-    _validate = false;
     return SafeArea(
       child: Scaffold(
           resizeToAvoidBottomInset: false,
@@ -60,19 +57,16 @@ class _SearchPageState extends State<SearchPage> {
                 style: TextStyle(),
                 controller: _text,
                 decoration: InputDecoration(
-                    errorText: _validate! ? 'Vacío' : null,
+                    errorText: _text.text.isEmpty ? 'Vacío' : null,
                     hintText: 'Buscar artículos...',
                     contentPadding: EdgeInsets.all(10)),
               ),
             ),
-            //_dropDown(),
             Container(
               padding: EdgeInsets.only(left: 5.0),
               width: MediaQuery.of(context).size.width * 0.2,
               child: TextButton(
                   onPressed: () {
-                    _text.text.isEmpty ? _validate = false : _validate = true;
-                    print(_validate);
                     setState(() {});
                   },
                   child: Text(
@@ -86,62 +80,19 @@ class _SearchPageState extends State<SearchPage> {
                         Color.fromRGBO(0, 212, 164, 1)),
                   )),
             ),
+            Container(
+              child: Text('con'),
+              margin: EdgeInsets.only(left: 5.0),
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 5.0),
+              child: Image.asset(
+                'assets/images/logotipo.png',
+                width: MediaQuery.of(context).size.width * 0.2,
+              ),
+            )
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _dropDown() {
-    return Container(
-      padding: EdgeInsets.only(left: 5, right: 5),
-      width: MediaQuery.of(context).size.width * 0.25,
-      child: DropdownButton(
-        value: dropinitial,
-        isExpanded: true,
-        items: [
-          DropdownMenuItem(
-              value: 'todo',
-              child: Text(
-                'Todo',
-                style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.035),
-              )),
-          DropdownMenuItem(
-              value: 'imagenes',
-              child: Text(
-                'Imágenes',
-                style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.035),
-              )),
-          DropdownMenuItem(
-              value: 'documentos',
-              child: Text(
-                'Documentos',
-                style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.035),
-              )),
-          DropdownMenuItem(
-              value: 'noticias',
-              child: Text(
-                'Noticias',
-                style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.035),
-              )),
-          DropdownMenuItem(
-              value: 'academia',
-              child: Text(
-                'Academia',
-                style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.035),
-              )),
-        ],
-        onChanged: (value) {
-          setState(() {
-            dropinitial = value as String;
-          });
-          print(value);
-        },
       ),
     );
   }
@@ -157,11 +108,15 @@ class _SearchPageState extends State<SearchPage> {
               return Container();
             }
 
+            if (_text.text.isEmpty) {
+              return Container();
+            }
+
             if (snapshot.connectionState != ConnectionState.done) {
               return Center(
                   child: Container(
                       width: MediaQuery.of(context).size.width * 0.2,
-                      height: MediaQuery.of(context).size.height * 0.2,
+                      height: MediaQuery.of(context).size.height * 0.13,
                       child: CircularProgressIndicator()));
             }
             //if (snapshot.hasData) {

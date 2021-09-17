@@ -13,7 +13,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        // drawer: showDrawer(context),
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           actions: [
@@ -57,36 +56,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Drawer showDrawer(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            child: Container(),
-            decoration: BoxDecoration(
-                image: DecorationImage(
-              image: AssetImage(
-                'assets/images/app_bar_image.png',
-              ),
-            )),
-          ),
-          ListTile(
-            leading: Icon(Icons.search),
-            title: Text('Realizar una búsqueda'),
-            trailing: Icon(Icons.keyboard_arrow_right),
-            onTap: () => Navigator.pushNamed(context, 'busqueda'),
-          ),
-          ListTile(
-            leading: Icon(Icons.info_outlined),
-            title: Text('Acerca de...'),
-            trailing: Icon(Icons.keyboard_arrow_right),
-          )
-        ],
-      ),
-    );
-  }
-
   Widget textUltimasNoticias() {
     return Container(
       margin: EdgeInsets.only(left: 10.0),
@@ -119,7 +88,6 @@ class _HomePageState extends State<HomePage> {
                   },
                   title: Text(
                     '${snapshot.data![index]}',
-                    // overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 15.0),
                   ),
                   trailing: Icon(
