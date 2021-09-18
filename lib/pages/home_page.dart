@@ -8,6 +8,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final news = NewsProvider();
   final prefs = new PreferenciasUsuario();
   @override
   Widget build(BuildContext context) {
@@ -84,7 +85,7 @@ class _HomePageState extends State<HomePage> {
                 width: 400,
                 child: ListTile(
                   onTap: () {
-                    launchInBrowser(snapshot.data![index + 2]);
+                    news.launchInBrowser(snapshot.data![index + 2]);
                   },
                   title: Text(
                     '${snapshot.data![index]}',
@@ -107,7 +108,7 @@ class _HomePageState extends State<HomePage> {
           );
         }
       },
-      future: getUltimoMinuto(),
+      future: news.getUltimoMinuto(),
     );
   }
 
@@ -162,7 +163,7 @@ class _HomePageState extends State<HomePage> {
   Widget _imageTable(String ruta_foto, String web_url, String url) {
     return InkWell(
       onTap: () {
-        launchInBrowser(url);
+        news.launchInBrowser(url);
       },
       child: Container(
         height: MediaQuery.of(context).size.height * 0.15,

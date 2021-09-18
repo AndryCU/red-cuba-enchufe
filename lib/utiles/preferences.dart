@@ -23,4 +23,12 @@ class PreferenciasUsuario {
   set flag(bool value) {
     _prefs.setBool('frompage', value);
   }
+
+  bool get load {
+    return _prefs.getBool('load') ?? false;
+  }
+
+  set load(bool value) {
+    _prefs.setBool('load', value);
+  }
 }

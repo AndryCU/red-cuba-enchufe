@@ -15,8 +15,16 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final prefs = new PreferenciasUsuario();
+  final news = NewsProvider();
   List<String> todo_results = [];
   final _text = TextEditingController();
+
+  @override
+  void dispose() {
+    prefs.flag = false;
+    news.disposeStreams();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +75,8 @@ class _SearchPageState extends State<SearchPage> {
               width: MediaQuery.of(context).size.width * 0.2,
               child: TextButton(
                   onPressed: () {
+                    prefs.load = true;
+                    news.getTodoResults(_text.text);
                     setState(() {});
                   },
                   child: Text(
@@ -100,53 +110,81 @@ class _SearchPageState extends State<SearchPage> {
   Widget _showTodoResults() {
     return Container(
         height: MediaQuery.of(context).size.height * 0.7,
-        child: FutureBuilder(
-          future: getTodoResults(_text.text),
+        child: StreamBuilder(
+          stream: news.newsStream,
           builder: (context, AsyncSnapshot<List<Noticias>> snapshot) {
-            if (prefs.flag) {
-              prefs.flag = false;
+            if (prefs.flag && _text.text.isEmpty) {
               return Container();
             }
 
-            if (_text.text.isEmpty) {
-              return Container();
-            }
-
-            if (snapshot.connectionState != ConnectionState.done) {
-              return Center(
-                  child: Container(
-                      width: MediaQuery.of(context).size.width * 0.2,
-                      height: MediaQuery.of(context).size.height * 0.13,
-                      child: CircularProgressIndicator()));
-            }
-            //if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                return InkWell(
-                  onTap: () {
-                    launchInBrowser(snapshot.data![index].url);
-                  },
-                  child: Container(
-                    margin: EdgeInsets.all(5.0),
-                    child: ListTile(
-                      title: Text(
-                        '${snapshot.data![index].title}',
-                        style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text('${snapshot.data![index].subtitle}',
-                          overflow: TextOverflow.clip,
-                          maxLines: 3,
-                          softWrap: true,
-                          textAlign: TextAlign.justify),
-                      trailing: Icon(Icons.chevron_right),
+            if (_text.text.isNotEmpty && prefs.load && snapshot.hasData) {
+              return Container(
+                margin: EdgeInsets.only(top: 20.0),
+                child: Center(
+                  child: Column(children: [
+                    Text(
+                      'CARGANDO...',
+                      style: TextStyle(
+                          color: Colors.blue,
+                          fontSize: MediaQuery.of(context).size.width * 0.06),
                     ),
-                  ),
-                );
-              },
-            );
-            //}
+                    SizedBox(
+                      child: CircularProgressIndicator(),
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      height: MediaQuery.of(context).size.height * 0.12,
+                    ),
+                  ]),
+                ),
+              );
+            }
+
+            if (snapshot.hasData) {
+              return ListView.builder(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    onTap: () {
+                      news.launchInBrowser(snapshot.data![index].url);
+                    },
+                    child: Container(
+                      margin: EdgeInsets.all(5.0),
+                      child: ListTile(
+                        title: Text(
+                          '${snapshot.data![index].title}',
+                          style: TextStyle(
+                              color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text('${snapshot.data![index].subtitle}',
+                            overflow: TextOverflow.clip,
+                            maxLines: 3,
+                            softWrap: true,
+                            textAlign: TextAlign.justify),
+                        trailing: Icon(Icons.chevron_right),
+                      ),
+                    ),
+                  );
+                },
+              );
+            } else {
+              return Container(
+                margin: EdgeInsets.only(top: 20.0),
+                child: Center(
+                  child: Column(children: [
+                    Text(
+                      'BUSCANDO...',
+                      style: TextStyle(
+                          color: Colors.blue,
+                          fontSize: MediaQuery.of(context).size.width * 0.06),
+                    ),
+                    SizedBox(
+                      child: CircularProgressIndicator(),
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      height: MediaQuery.of(context).size.height * 0.12,
+                    ),
+                  ]),
+                ),
+              );
+            }
           },
         ));
   }
