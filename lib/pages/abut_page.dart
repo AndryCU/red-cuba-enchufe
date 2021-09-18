@@ -18,13 +18,14 @@ class AboutPage extends StatelessWidget {
           child: Center(
             child: Column(children: [
               Container(
-                child: Image.asset(
-                  'assets/images/enchufe.jpg',
-                  width: MediaQuery.of(context).size.width * 0.4,
-                  height: MediaQuery.of(context).size.height * 0.4,
+                child: ClipRRect(
+                  child: Image.asset(
+                    'assets/images/enchufe.jpg',
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    height: MediaQuery.of(context).size.height * 0.4,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                decoration:
-                    BoxDecoration(borderRadius: BorderRadius.circular(50.0)),
               ),
               Text(
                 'Desarrollado por Enchufe',
